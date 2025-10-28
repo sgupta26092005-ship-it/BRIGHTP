@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // learnapart collection
+    match /learnapart/{docId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
+    // scripts collection
+    match /scripts/{docId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
+    // learnapart collaborators
+    match /learnapartCollaborators/{docId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
+    // learnapart events
+    match /learnapartEvents/{docId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
+    // clients collection
+    match /clients/{docId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
+    // teammates collection
+    match /teammates/{docId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
+    // upskillTasks collection
+    match /upskillTasks/{docId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
+    // collegeAssignments collection
+    match /collegeAssignments/{docId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
+    // finance collection
+    match /finance/{docId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
+    // Fallback: deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

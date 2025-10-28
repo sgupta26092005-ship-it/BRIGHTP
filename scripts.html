@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scripts - Bright Pitch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212; /* Softer dark background */
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+
+        .dashboard {
+            display: block;
+            background: #000000;
+            min-height: 100vh;
+        }
+
+        .dashboard-content {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: #1e1e1e; /* Darker card background */
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #333;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .subsection {
+            margin-bottom: 25px;
+        }
+
+        .subsection h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+
+        .editable-content {
+            border: 2px dashed #555;
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 50px;
+            margin-bottom: 10px;
+            cursor: text;
+            color: #e0e0e0;
+        }
+
+        .editable-content:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #3a3a3a;
+        }
+
+        .add-script-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: #667eea;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .add-script-btn:hover {
+            opacity: 0.8;
+        }
+
+        .video-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .video-card {
+            background: #2c2c2c;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .video-script-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .video-script-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .modal-actions {
+            margin-top: 20px;
+            text-align: right;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .edit-btn { background: #f0ad4e; }
+        .delete-btn { background: #d9534f; }
+        .edit-btn:hover, .delete-btn:hover { opacity: 0.8; }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard active">
+        <div class="dashboard-content">
+            <a href="index.html" class="back-link">← Back to Home</a>
+            <div class="section">
+                <h2>📜 Scripts</h2>
+                <div class="subsection">
+                    <h3>Content Creation - YouTube Videos</h3>
+                    <button class="add-script-btn" data-category="youtube">Add YouTube Script</button>
+                    <div class="video-list" id="youtube-scripts">
+                        <!-- YouTube scripts will be loaded here -->
+                    </div>
+                </div>
+                <div class="subsection">
+                    <h3>Content Creation - Instagram Posts</h3>
+                    <button class="add-script-btn" data-category="instagram">Add Instagram Post</button>
+                    <div class="video-list" id="instagram-scripts">
+                        <!-- Instagram scripts will be loaded here -->
+                    </div>
+                </div>
+                <div class="subsection">
+                    <h3>Content Creation - LinkedIn Articles</h3>
+                    <button class="add-script-btn" data-category="linkedin">Add LinkedIn Article</button>
+                    <div class="video-list" id="linkedin-scripts">
+                        <!-- LinkedIn scripts will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Script Modal -->
+    <div class="video-script-modal" id="videoModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="videoTitle" contenteditable="true">Video Title</h2>
+            <div class="editable-content" contenteditable="true" id="videoScript" style="min-height: 300px;">
+                Video script content goes here...
+            </div>
+            <div class="modal-actions">
+                <button id="deleteScriptBtn" class="delete-btn">Delete</button>
+                <button id="saveScriptBtn" class="edit-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs for modular imports -->
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js" type="module"></script>
+
+    <script type="module" src="scripts.js"></script>
+</body>
+</html>

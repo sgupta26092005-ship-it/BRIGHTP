@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upskilling - Bright Pitch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212; /* Softer dark background */
+            color: #fdf9f9; /* Set default text color to light gray for dark background */
+            min-height: 100vh;
+        }
+
+        .selection-screen {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .selection-screen h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .selection-screen p {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .role-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .role-btn {
+            padding: 20px 50px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-btn.owner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .role-btn.employee {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .role-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .dashboard {
+            display: none;
+            background: #000000;
+            min-height: 100vh;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .dashboard-content {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: #1e1e1e; /* Darker card background */
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #333; /* Add a border for separation */
+            transition: all 0.3s ease;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .section:hover { /* Subtle hover effect */
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .subsection {
+            margin-bottom: 25px;
+        }
+
+        .subsection h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+
+        .task-input, .client-input, .teammate-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .task-input input, .client-input input, .teammate-input input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .add-btn, .delete-btn, .edit-btn {
+            padding: 10px 20px;
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.3s ease;
+        }
+
+        .add-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #f5576c;
+            color: white;
+        }
+
+        .edit-btn {
+            background: #ffa726;
+            background: #f0ad4e; /* A distinct color for edit */
+            color: white;
+        }
+
+        .add-btn:hover, .delete-btn:hover, .edit-btn:hover {
+            opacity: 0.8;
+        }
+
+        .task-list, .client-list, .teammate-list, .assignment-list {
+            list-style: none;
+        }
+
+        .task-item, .client-item, .teammate-item, .assignment-item {
+            background: #2c2c2c; /* Darker background for list items */
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            border: 1px solid #444;
+        }
+
+        .task-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .task-text {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .task-text.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .task-description {
+            font-size: 0.9em;
+            color: #aaa; /* Lighter gray for description text */
+            margin-left: 30px; /* Align with task text */
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .calendar-header {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            border-radius: 5px;
+        }
+
+        .calendar-day {
+            background: #2c2c2c; /* Dark background for calendar days */
+            padding: 10px;
+            min-height: 100px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            position: relative;
+            transition: background-color 0.2s ease;
+        }
+
+        .calendar-day.has-task {
+            /* We will rely on task colors instead of changing day background */
+        }
+
+        #newTaskModal {
+            display: none;
+            z-index: 20;
+            padding: 25px;
+            background-color: #2c2c2c; /* Dark modal background */
+            box-shadow: 0px 0px 3px black;
+            border-radius: 5px;
+            width: 350px;
+            top: 100px;
+            left: calc(50% - 175px);
+            position: absolute;
+        }
+        #newTaskModal h2 { color: #5bc0de; } /* Lighter heading color for modal */
+        #newTaskModal button {
+            background-color: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #newTaskModal input, #newTaskModal textarea, #newTaskModal select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 3px;
+            border: 1px solid #555;
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+        }
+        #modalBackDrop {
+            display: none;
+            top: 0px;
+            left: 0px;
+            z-index: 10;
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        :root {
+            --event-pending: #f0ad4e;
+            --event-completed: #5cb85c;
+            --event-upcoming: #5bc0de;
+        }
+
+        .calendar-events {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 5px;
+        }
+
+        .event-indicator {
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            padding: 2px 5px;
+            color: white;
+            font-size: 0.8em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        /* Use attribute selector to apply color from CSS variable */
+        .event-indicator[data-status="pending"] { background-color: var(--event-pending); }
+        .event-indicator[data-status="completed"] { background-color: var(--event-completed); }
+        .event-indicator[data-status="upcoming"] { background-color: var(--event-upcoming); }
+
+        .event-popup {
+            display: none;
+            position: absolute;
+            bottom: 150%; /* Position above the indicator */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 100;
+            width: 200px;
+            font-size: 0.9em;
+            white-space: normal;
+        }
+
+        .event-indicator .event-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .event-indicator:hover .event-popup {
+            display: block;
+        }
+
+        .event-popup::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+
+        .calendar-day#currentDay {
+            background-color: #444; /* Distinct dark color for the current day */
+        }
+
+        .calendar-day.padding {
+            cursor: default !important; 
+            background-color: #1a1a1a !important; /* Even darker for padding days */
+            box-shadow: none !important;
+        }
+        .calendar-day:hover {
+            background-color: #3a3a3a; /* Hover effect for calendar days */
+        }
+
+        .progress-tracker {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #ddd;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .editable-content {
+            border: 2px dashed #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 50px;
+            margin-bottom: 10px;
+            cursor: text;
+        }
+
+        .editable-content:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+        }
+
+        .video-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .video-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #ddd;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .video-script-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .video-script-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .task-category {
+            margin-bottom: 15px;
+        }
+
+        .accordion-toggle {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion-toggle .arrow {
+            transition: transform 0.3s ease;
+            border: solid #667eea;
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 3px;
+            transform: rotate(45deg);
+            margin-right: 5px;
+        }
+
+        .accordion-toggle.active .arrow {
+            transform: rotate(-135deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .accordion-content.active {
+            max-height: 1000px; /* Expand the content */
+        }
+
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-picker-group input[type="color"] {
+            border-radius: 5px;
+        }
+        
+        .color-settings-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .subsection.accordion-content.active {
+                overflow-x: auto; /* Allow calendar to scroll horizontally */
+            }
+            .calendar {
+                min-width: 600px; /* Force a minimum width to maintain layout */
+            }
+            .calendar-day { min-height: auto; padding: 10px; }
+
+            .dashboard-content {
+                padding: 15px;
+            }
+
+            .role-buttons {
+                flex-direction: column;
+            }
+
+            .role-btn {
+                width: 100%;
+            }
+
+            .task-input, .client-input, .teammate-input {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                width: 100%;
+                overflow-x: auto;
+                justify-content: flex-start;
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+                scrollbar-width: none; /* Hide scrollbar for Firefox */
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            #newTaskModal {
+                width: 90%;
+                left: 5%;
+                top: 50px;
+            }
+
+            #currentMonth {
+                font-size: 1em;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Owner Dashboard -->
+    <div class="dashboard active" id="ownerDashboard">
+        <div class="dashboard-content">
+            <!-- 1. Tasks Section -->
+            <a href="index.html" class="back-link">← Back to Home</a>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #2c2c2c; padding: 10px; border-radius: 8px;">
+                <button id="backButton" class="edit-btn">‹ Prev Month</button>
+                <h3 id="currentMonth" style="color: #e0e0e0;"></h3>
+                <button id="nextButton" class="edit-btn">Next Month ›</button>
+            </div>
+
+            <div class="section">
+                <h2>📝 Tasks</h2>
+                
+                <div class="subsection">
+                    <h3>Add New Task</h3>
+                    <div class="task-input">
+                        <input type="text" id="taskInput" placeholder="Enter task name">
+                        <input type="text" id="taskDescription" placeholder="Enter task description">
+                        <input type="date" id="taskDate">
+                        <button class="add-btn">Add Task</button>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="task-category">
+                        <div class="accordion-toggle active"><h3>Pending Tasks</h3><span class="arrow"></span></div>
+                        <ul class="task-list accordion-content" id="pendingTaskList">
+                            <li class="task-item">
+                                <input type="checkbox">
+                                <span class="task-text">Complete React.js course</span>
+                                <button class="delete-btn">Delete</button>
+                            </li>
+                            <li class="task-item">
+                                <input type="checkbox">
+                                <span class="task-text">Learn Node.js basics</span>
+                                <button class="delete-btn">Delete</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="task-category">
+                        <div class="accordion-toggle"><h3>Completed Tasks</h3><span class="arrow"></span></div>
+                        <ul class="task-list accordion-content" id="completedTaskList">
+                            <li class="task-item">
+                                <input type="checkbox" checked>
+                                <span class="task-text completed">Watch Python tutorial</span>
+                                <button class="delete-btn">Delete</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="task-category">
+                        <div class="accordion-toggle"><h3>Upcoming Tasks</h3><span class="arrow"></span></div>
+                        <ul class="task-list accordion-content" id="upcomingTaskList"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Progress Section -->
+            <div class="section">
+                <h2>📊 Progress Tracker</h2>
+                <div class="subsection">
+                    <div class="progress-tracker">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 33%;">33%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Calendar Section -->
+            <div class="section">
+                <div class="accordion-toggle active">
+                    <h2>📅 Task Calendar</h2>
+                    <span class="arrow"></span>
+                </div>
+                <div class="subsection accordion-content active">
+                    <div class="calendar" id="taskCalendar">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color Customization Section -->
+            <div class="section">
+                <h2>🎨 Customize Colors</h2>
+                <div class="subsection color-settings-grid">
+                    <div class="color-picker-group">
+                        <label for="pendingColor">Pending:</label>
+                        <input type="color" id="pendingColor" data-status="pending">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="upcomingColor">Upcoming:</label>
+                        <input type="color" id="upcomingColor" data-status="upcoming">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="completedColor">Completed:</label>
+                        <input type="color" id="completedColor" data-status="completed">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="newTaskModal">
+        <h2>New Task</h2>
+        <div id="tasksForDay"></div>
+        <hr/>
+        <input id="taskTitleInput" placeholder="Task Title" />
+        <textarea id="taskDescInput" placeholder="Task Description"></textarea>
+        <select id="taskStatusSelect">
+            <option value="pending" selected>Pending</option>
+            <option value="completed">Completed</option>
+            <option value="upcoming">Upcoming</option>
+        </select>
+        <button id="saveButton">Save</button>
+        <button id="cancelButton">Cancel</button>
+    </div>
+
+    <div id="modalBackDrop"></div>
+
+    <script type="module" src="upskill.js"></script>
+    <script type="module" src="calendar.js"></script>
+</body>
+</html>

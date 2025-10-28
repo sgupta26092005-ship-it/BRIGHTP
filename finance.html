@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance - Bright Pitch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212; /* Softer dark background */
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+
+        .selection-screen {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .selection-screen h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .selection-screen p {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .role-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .role-btn {
+            padding: 20px 50px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-btn.owner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .role-btn.employee {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .role-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .dashboard {
+            display: none;
+            background: #000000;
+            min-height: 100vh;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .dashboard-content {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: #1e1e1e; /* Darker card background */
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #333;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .subsection {
+            margin-bottom: 25px;
+        }
+
+        .subsection h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+
+        .task-input, .client-input, .teammate-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .task-input input, .client-input input, .teammate-input input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .add-btn, .delete-btn, .edit-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #d9534f;
+            color: white;
+        }
+
+        .edit-btn {
+            background: #ffa726;
+            color: white;
+        }
+
+        .add-btn:hover, .delete-btn:hover, .edit-btn:hover {
+            opacity: 0.8;
+        }
+
+        .task-list, .client-list, .teammate-list, .assignment-list {
+            list-style: none;
+        }
+
+        .task-item, .client-item, .teammate-item, .assignment-item {
+            background: #2c2c2c;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            border: 1px solid #444;
+        }
+
+        .task-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .task-text {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .task-text.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .calendar-header {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            border-radius: 5px;
+        }
+
+        .calendar-day {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            min-height: 80px;
+            border: 2px solid #ddd;
+        }
+
+        .calendar-day.has-task {
+            background: #e3f2fd;
+            border-color: #667eea;
+        }
+
+        .progress-tracker {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #ddd;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .editable-content {
+            border: 2px dashed #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 50px;
+            margin-bottom: 10px;
+            cursor: text;
+        }
+
+        .editable-content:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .finance-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .finance-form input, .finance-form select {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            min-width: 150px; 
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+        }
+
+        .finance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .entry-box {
+            background: #2c2c2c;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #444;
+        }
+        .entry-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+        .entry-details {
+            padding: 0 15px 15px 15px;
+            border-top: 1px solid #444;
+            display: none; /* Hidden by default */
+        }
+        .finance-summary {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px; 
+            background: #2c2c2c;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .payment-box {
+            background: #2c2c2c;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #444;
+        }
+        .payment-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+        .payment-details {
+            padding: 0 15px 15px 15px;
+            border-top: 1px solid #444;
+            display: none; /* Hidden by default */
+        }
+        .payment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+        }
+
+        .video-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .video-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #ddd;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .video-script-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .video-script-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .accordion-toggle {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion-toggle .arrow {
+            transition: transform 0.3s ease;
+            border: solid #e0e0e0;
+            border-width: 0 3px 3px 0;
+            display: inline-block;
+            padding: 4px;
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+        }
+
+        .accordion-toggle.active .arrow {
+            transform: rotate(-135deg);
+            -webkit-transform: rotate(-135deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            padding-top: 20px; /* Add some space when opened */
+        }
+
+        .accordion-content.active {
+            max-height: 1000px; /* Adjust as needed for chart height */
+        }
+        
+        .chart-controls {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-toggle-btn {
+            padding: 8px 16px;
+            border: 1px solid #667eea;
+            background-color: transparent;
+            color: #667eea;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .chart-toggle-btn.active, .chart-toggle-btn:hover {
+            background-color: #667eea;
+            color: white;
+        }
+
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .calendar {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .dashboard-content {
+                padding: 15px;
+            }
+
+            .role-buttons {
+                flex-direction: column;
+            }
+
+            .role-btn {
+                width: 100%;
+            }
+
+            .task-input, .client-input, .teammate-input {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .finance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #currentDateDisplay {
+                font-size: 1em;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Owner Dashboard -->
+    <div class="dashboard active" id="ownerDashboard">
+        <div class="dashboard-content">
+            <!-- 3. Financial Analysis -->
+            <a href="index.html" class="back-link">← Back to Home</a>
+            <div class="section">
+                <h2>💰 Financial Analysis</h2>
+                
+                <div class="subsection finance-form">
+                    <input type="text" id="entryDescription" placeholder="Description" style="flex-grow: 2;">
+                    <input type="number" id="entryAmount" placeholder="Amount" style="flex-grow: 1;">
+                    <input type="text" id="entryCategory" placeholder="Category" style="flex-grow: 1;">
+                    <input type="date" id="entryDate" style="flex-grow: 1;">
+                    <select id="entryType">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                    <button id="addEntryBtn" class="add-btn">Add Entry</button>
+                </div>
+
+                <div class="chart-controls" style="margin-bottom: 10px; text-align: center;">
+                    <button id="viewDayBtn" class="chart-toggle-btn active">Day</button>
+                    <button id="viewMonthBtn" class="chart-toggle-btn">Month</button>
+                    <button id="viewYearBtn" class="chart-toggle-btn">Year</button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #2c2c2c; padding: 10px; border-radius: 8px;">
+                    <button id="prevBtn" class="edit-btn">‹ Prev</button>
+                    <h3 id="currentDateDisplay" style="color: #e0e0e0;"></h3>
+                    <button id="nextBtn" class="edit-btn">Next ›</button>
+                </div>
+
+                <div class="section">
+                    <div class="accordion-toggle active">
+                        <h2>📊 Daily Charts</h2>
+                        <span class="arrow"></span>
+                    </div>
+                    <div class="accordion-content active">
+                        <div class="chart-controls">
+                            <button id="showIncomeChartBtn" class="chart-toggle-btn active">Income</button>
+                            <button id="showExpenseChartBtn" class="chart-toggle-btn">Expenses</button>
+                        </div>
+                        <div class="chart-container" style="position: relative; height: 40vh; max-height: 350px; width: 100%;">
+                            <canvas id="financePieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="finance-summary">
+                    <div>
+                        <h3>Total Income</h3>
+                        <p id="totalIncome" style="color: green; font-weight: bold;">$0.00</p>
+                    </div>
+                    <div>
+                        <h3>Total Expenses</h3>
+                        <p id="totalExpenses" style="color: red; font-weight: bold;">$0.00</p>
+                    </div>
+                    <div>
+                        <h3>Balance</h3>
+                        <p id="balance" style="font-weight: bold;">$0.00</p>
+                    </div>
+                </div>
+
+                <div class="finance-grid">
+                    <div class="subsection">
+                        <h3>Income</h3>
+                        <div id="incomeEntries"></div>
+                    </div>
+                    <div class="subsection">
+                        <h3>Expenses</h3>
+                        <div id="expenseEntries"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Client Payments</h2>
+                <div class="subsection finance-form">
+                    <input type="text" id="paymentClientName" placeholder="Client Name">
+                    <input type="number" id="paymentAmount" placeholder="Amount">
+                    <input type="date" id="paymentDueDate">
+                    <select id="paymentStatus">
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <button id="addPaymentBtn" class="add-btn">Add Payment</button>
+                </div>
+
+                <div class="payment-grid">
+                    <div class="subsection">
+                        <h3>Pending Payments</h3>
+                        <div id="pendingPayments"></div>
+                    </div>
+                    <div class="subsection">
+                        <h3>Completed Payments</h3>
+                        <div id="completedPayments"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Entry Modal -->
+    <div id="editEntryModal" style="display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8);">
+        <div style="background-color: #2c2c2c; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 10px;">
+            <h2 style="color: #ffa726;">Edit Entry</h2>
+            <input type="hidden" id="editEntryId">
+            <div class="finance-form" style="flex-direction: column;">
+                <input type="text" id="editEntryDescription" placeholder="Description">
+                <input type="number" id="editEntryAmount" placeholder="Amount">
+                <input type="text" id="editEntryCategory" placeholder="Category">
+                <input type="date" id="editEntryDate">
+                <select id="editEntryType">
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+            </div>
+            <button id="saveEditBtn" class="edit-btn">Save Changes</button>
+            <button id="cancelEditBtn" class="delete-btn" style="background-color: #5a6268;">Cancel</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="finance.js"></script>
+</body>
+</html>
